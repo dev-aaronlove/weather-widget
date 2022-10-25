@@ -2,6 +2,9 @@ import React from "react";
 import DayCard from "./DayCard";
 import DegreeToggle from "./DegreeToggle";
 import {WEATHER_URL, WEATHER_API} from "../constants";
+import WeatherService from "../services";
+
+const weather = new WeatherService();
 
 class ForecastContainer extends React.Component {
   state = { //don't need constructor since not passing in props
@@ -13,34 +16,24 @@ class ForecastContainer extends React.Component {
 
   async componentDidMount() {
     this.setState({loading: true});
-    try {
-      const response = await fetch(`${WEATHER_URL}59d4c6fc6e13eaab4d9b6f5e00285021`);
-      if (response.ok) {
-
-        const json = await response.json();
-        const data = await json.list
-        .filter(day => day.dt_txt.includes("00:00:00"))
-        .map(item => ({
-          temp: item.main.temp,
-          dt: item.dt,
-          date: item.dt_txt,
-          imgId: item.weather[0].id,
-          desc: item.weather[0].description
-        }));
+    weather.fetchFiveDayForecast()
+    .then((res) => {
+      if (res && res.response.ok) {
         this.setState({
-          data, //short version of setting data: data since same name
-          loading: false
-        }); 
+          data: res.data,
+          loading:false
+        })
       } else {
-        this.setState({
-          error: true,
-          loading: false
-        }); 
+        this.setState({loading: false});
       }
-    } catch(err) {
-      console.log("There was an error: ", err);
-    }
-  }
+    }, (error) => {
+      console.log(error);
+      this.setState({
+        error: true,
+        loading: false
+      })
+    })
+  } 
 
   updateForecastDegree = ({ target: {value}}) => this.setState({degreeType: value});
 
