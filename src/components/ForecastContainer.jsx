@@ -8,6 +8,7 @@ class ForecastContainer extends React.Component {
     data: [],
     loading: false,
     error: false,
+    degreeType: "fahrenheit",
   }
 
   async componentDidMount() {
@@ -41,16 +42,22 @@ class ForecastContainer extends React.Component {
     }
   }
 
+  updateForecastDegree = ({ target: {value}}) => this.setState({degreeType: value});
+
   render() {
-    const { loading, error, data } = this.state;
+    const { loading, error, data, degreeType } = this.state;
     return (
       <div className="container mt-5">
         <h1 className="display-1 jumbotron bg-light py-5 mb-5">5-Day Forecast</h1>
         <h5 className="text-muted">Herriman UT, US</h5>
-        <DegreeToggle />
+        <DegreeToggle degreeType={degreeType} updateForecastDegree={this.updateForecastDegree}/>
         <div className="row justify-content-center">
           {!loading ? data.map((item) => (
-            <DayCard data={item} key={item.dt}/>
+            <DayCard 
+              key={item.dt}
+              data={item} 
+              degreeType={degreeType}
+            />
           )) : <div>Loading...</div>}
         </div>
         {error && <h3 className="text-danger">Error loading data 😞</h3>}
