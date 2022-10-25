@@ -5,6 +5,7 @@ class WeatherService {
     return new Promise(async (success, failure) => {
       try {
         const response = await fetch(`${WEATHER_URL}59d4c6fc6e13eaab4d9b6f5e00285021`);
+        // const response = await fetch(`${WEATHER_URL}${WEATHER_API}`);
         if (response.ok) {
           const json = await response.json();
           const data = await json.list
@@ -14,7 +15,10 @@ class WeatherService {
             dt: item.dt,
             date: item.dt_txt,
             imgId: item.weather[0].id,
-            desc: item.weather[0].description
+            desc: item.weather[0].description,
+            feelsLike: item.main.feels_like,
+            humidity: item.main.humidity,
+            speed: item.wind.speed 
           }));
           success({response, data});
         } else {
