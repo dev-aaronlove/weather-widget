@@ -4,8 +4,14 @@ import DegreeToggle from "./DegreeToggle";
 import {WEATHER_URL, WEATHER_API} from "../constants";
 
 class ForecastContainer extends React.Component {
+  state = { //don't need constructor since not passing in props
+    data: [],
+    loading: false,
+    error: false,
+  }
 
   async componentDidMount() {
+    this.setState({loading: true});
     try {
       const response = await fetch(`${WEATHER_URL}59d4c6fc6e13eaab4d9b6f5e00285021`);
       if (response.ok) {
@@ -17,22 +23,33 @@ class ForecastContainer extends React.Component {
           temp: item.main.temp,
           dt: item.dt,
           date: item.dt_txt,
-          imgId: item.weather[0].icon,
+          imgId: item.weather[0].id,
           desc: item.weather[0].description
         }));
-        console.log('data: ', data);
-      } else console.log('response is not ok');
+        this.setState({
+          data, //short version of setting data: data since same name
+          loading: false
+        }); 
+      } else {
+        this.setState({
+          error: true,
+          loading: false
+        }); 
+      }
     } catch(err) {
       console.log("There was an error: ", err);
     }
   }
 
   render() {
+    const { loading, error, data } = this.state;
     return (
       <div>
         <div>Forecast Container</div>
         <DegreeToggle />
-        <DayCard />
+        {!loading ? data.map((item) => (
+          <DayCard data={item} key={item.dt}/>
+        )) : <div>Loading...</div>}
       </div>
     )
   }
